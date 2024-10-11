@@ -1,0 +1,46 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+}
+
+.btn-custom {
+    width: 100%;
+    border-radius: 25px;
+    margin-top: 10px;
+}
+
+.file-label {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+img {
+    display: block;
+    margin: 20px auto;
+    max-width: 300px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+h2 {
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #343a40;
+}
+
+.Name{
+    font-size: 48px;
+    font-weight: bold;
+    background: linear-gradient(to right, #9fef3d, #feb47b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    border: 2;
+    border-color: black;
+}
