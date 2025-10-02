@@ -4,29 +4,283 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Image Upload & Download</title>
+    <title>Image Background Remover</title>
     
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --accent-1: #9fef3d;
+            --accent-2: #feb47b;
+            --border-color: #334155;
+            --shadow: rgba(0, 0, 0, 0.4);
+        }
+
+        body.light-mode {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --border-color: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 8px 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px var(--shadow);
+        }
+
+        .container {
+            padding-top: 80px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            box-shadow: 0 8px 24px var(--shadow);
+            border-radius: 24px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        h2 {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 10px rgba(159, 239, 61, 0.3);
+        }
+
+        .form-group label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .form-control {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            background: var(--bg-secondary);
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(159, 239, 61, 0.2);
+            color: var(--text-primary);
+        }
+
+        .form-control::file-selector-button {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            border: none;
+            border-radius: 8px;
+            padding: 8px 20px;
+            color: #1e293b;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 12px;
+        }
+
+        .form-control::file-selector-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(159, 239, 61, 0.4);
+        }
+
+        .btn-custom {
+            width: 100%;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border: none;
+            margin-top: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-upload {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+        }
+
+        .btn-upload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: #1e293b;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(159, 239, 61, 0.4);
+        }
+
+        .btn-download:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .image-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .image-preview {
+            display: inline-block;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px var(--shadow);
+            max-width: 100%;
+            margin: 20px 0;
+        }
+
+        .image-preview img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: 16px;
+        }
+
+        .processing {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .spinner {
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--accent-1);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-message {
+            text-align: center;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: rgba(159, 239, 61, 0.2);
+            color: var(--accent-1);
+            border: 1px solid var(--accent-1);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 36px;
+            }
+            
+            .card {
+                padding: 24px;
+            }
+            
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+                padding: 6px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <span id="themeIcon">🌙</span>
+        <span id="themeText">Dark</span>
+    </div>
 
-    <div class="container mt-5">
+    <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card p-4">
-                    <h2 class="Name">Image Background Remover</h2>
-                    <form>
+            <div class="col-md-8 col-lg-6">
+                <div class="card">
+                    <h2>Image Background Remover</h2>
+                    <form id="uploadForm">
                         <div class="form-group">
-                            <label for="fileInput" class="file-label">Select a File:</label>
-                            <input id="fileInput" class="form-control" type="file">
+                            <label for="fileInput">Select an Image:</label>
+                            <input id="fileInput" class="form-control" type="file" accept="image/*">
                         </div>
-                        <input class="btn btn-primary btn-custom" type="button" onclick="submitHandler()" value="Upload">
+                        <button class="btn btn-custom btn-upload" type="button" onclick="submitHandler()">
+                            Remove Background
+                        </button>
+                        <button class="btn btn-custom btn-download" type="button" onclick="downloadFile()" id="downloadBtn" disabled>
+                            Download Processed Image
+                        </button>
                     </form>
-                    <button class="btn btn-warning btn-custom" onclick="downloadFile()">Download Processed Image</button>
+                    
+                    <div id="processingDiv" style="display: none;">
+                        <div class="spinner"></div>
+                        <div class="processing">Processing your image...</div>
+                    </div>
+                    
+                    <div id="statusMessage"></div>
+                    
+                    <div id="imageContainer" class="image-container"></div>
                 </div>
             </div>
         </div>
@@ -37,8 +291,105 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-    <!-- Custom JS -->
-    <script src="script.js"></script>
+    <script>
+        let imageURL;
 
+        // Theme toggle functionality
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            document.getElementById('themeIcon').textContent = isLight ? '☀️' : '🌙';
+            document.getElementById('themeText').textContent = isLight ? 'Light' : 'Dark';
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        }
+
+        // Load saved theme
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('themeIcon').textContent = '☀️';
+                document.getElementById('themeText').textContent = 'Light';
+            }
+        });
+
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status-message ' + (isError ? 'status-error' : 'status-success');
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function submitHandler() {
+            const fileInput = document.getElementById('fileInput');
+            const image = fileInput.files[0];
+            
+            if (!image) {
+                showStatus('Please select an image first!', true);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image_file', image);
+            formData.append('size', 'auto');
+
+            const apiKey = '5mpEKdbHGQcbJBEdcFQbDh7c';
+            
+            // Show processing indicator
+            document.getElementById('processingDiv').style.display = 'block';
+            document.getElementById('imageContainer').innerHTML = '';
+            document.getElementById('downloadBtn').disabled = true;
+            
+            fetch('https://api.remove.bg/v1.0/removebg', {
+                method: 'POST',
+                headers: {
+                    'X-Api-Key': apiKey
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to process image');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                imageURL = URL.createObjectURL(blob);
+                
+                const imgContainer = document.getElementById('imageContainer');
+                imgContainer.innerHTML = `
+                    <div class="image-preview">
+                        <img src="${imageURL}" alt="Processed Image">
+                    </div>
+                `;
+                
+                document.getElementById('processingDiv').style.display = 'none';
+                document.getElementById('downloadBtn').disabled = false;
+                showStatus('Background removed successfully!');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('processingDiv').style.display = 'none';
+                showStatus('Error processing image. Please try again.', true);
+            });
+        }
+
+        function downloadFile() {
+            if (!imageURL) return;
+            
+            const anchorElement = document.createElement('a');
+            anchorElement.href = imageURL;
+            anchorElement.download = 'processed_image.png';
+            document.body.appendChild(anchorElement);
+            anchorElement.click();
+            document.body.removeChild(anchorElement);
+            
+            showStatus('Image downloaded successfully!');
+        }
+    </script>
 </body>
 </html>
